@@ -3,6 +3,7 @@ import psycopg2
 from typing import Optional
 from datetime import date
 from pydantic import BaseModel, Field
+from connection import connection
 
 app = FastAPI()
 
@@ -50,16 +51,10 @@ class ClientRequest(BaseModel):
     email: Optional[str]
 
 
-conn = psycopg2.connect(
-    host="localhost",
-    database="postgres",
-    user="postgres",
-    password="asarasa12"
-)
-
 @app.get("/clientes/")
 async def get_all_clients():
-    cursor = conn.cursor()
+    
+    cursor = connection().cursor()
     cursor.execute("select * from gym.clientes")
     result = cursor.fetchall()
     cursor.close()
@@ -69,9 +64,22 @@ async def get_all_clients():
 @app.post("/Insert_Client/")
 async def create_item(Client: ClientRequest):
     # Create a new item in the database
-    cursor = conn.cursor()
+    cursor = connection().cursor()
     cursor.execute("INSERT INTO gym.clientes (nombre, apellido, dni) VALUES (%s, %s, %s)",
                    (Client.name, Client.lastname, Client.personal_id))
-    conn.commit()
+    connection().commit()
     cursor.close()
     return {"message": "Item created successfully"}
+
+
+@app.delete("/Delete_Client/{client_id}")
+async def delete_item(client_id: int):
+    '''
+    delete_item Delete clients from DB
+    '''
+    cursor = connection().cursor()
+    cursor.execute('DELETE FROM gym.clientes WHERE dni = %s', (client_id,))
+
+    connection().commit()
+    cursor.close()
+    return {"message": "User deleted"}
