@@ -50,7 +50,7 @@ class ClientRequest(BaseModel):
     cellphone: Optional[str]
     email: Optional[str]
 
-
+ 
 @app.get("/clientes/")
 async def get_all_clients():
     
