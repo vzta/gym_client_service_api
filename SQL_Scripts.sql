@@ -18,3 +18,12 @@ CREATE TABLE IF NOT EXISTS public.status (
     height FLOAT,
     sex VARCHAR(10)
 );
+
+CREATE TABLE IF NOT EXISTS public.lifting_performance (
+    id SERIAL PRIMARY KEY,
+    personal_id INT UNIQUE NOT NULL,
+    bench_lifted INT,
+    squat_lifted INT,
+    deadlift_lifted INT,
+    lift_date DATE NOT NULL
+);

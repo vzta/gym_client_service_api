@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query, Body
 import psycopg2
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Annotated   
 from datetime import date
 from pydantic import BaseModel, Field
 from connection import connection
@@ -21,7 +21,6 @@ class Cliente:
     sex: str
     cellphone: str
     email: str
-
 
     def __init__(self, id, name, lastname, personal_id, birthdate, age, disseases, weight, height, sex, cellphone, email ):
         self.id = id
@@ -51,6 +50,14 @@ class ClientRequest(BaseModel):
     cellphone: Optional[str]
     email: Optional[str]
 
+class ClientLift(BaseModel):
+    id: Optional[int] = Field(title='id is not needed')
+    personal_id: int
+    bench_lifted: Optional[int]
+    squat_lifted: Optional[int]
+    deadlift_lifted: Optional[int]
+    lift_date: date
+    
 
 @app.post("/CREATE_TABLES/")
 async def create_table():
@@ -105,3 +112,29 @@ async def delete_item(client_id: int):
     conn.commit()
     cursor.close()
     return {"message": "User deleted"}
+
+
+@app.post("/insert_lift/")
+async def add_weight_lifting(Client: ClientLift):
+    # Create a new item in the database
+    conn = connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+    INSERT INTO public.lifting_performance
+     (  id,
+        personal_id,
+        bench_lifted,
+        squat_lifted,
+        deadlift_lifted,
+        lift_date)
+     VALUES (%s, %s, %s, %s, %s, %s)""",
+                   (Client.id,
+                    Client.personal_id,
+                    Client.bench_lifted,
+                    Client.squat_lifted,
+                    Client.deadlift_lifted,
+                    Client.lift_date
+                    ))
+    conn.commit()
+    cursor.close()
+    return {"message": f"Item Inserted successfully"}
