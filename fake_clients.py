@@ -13,7 +13,7 @@ with conn.cursor() as cursor:
         email = fake.email()
         phone_number = fake.phone_number()
         query = cursor.mogrify(
-            "INSERT INTO gym.clientes (nombre, apellido, dni, email, celular) VALUES (%s, %s, %s, %s, %s)",
+            "INSERT INTO clients (nombre, apellido, dni, email, celular) VALUES (%s, %s, %s, %s, %s)",
             (name, lastname, dni, email, phone_number)
         )
         cursor.execute(query)

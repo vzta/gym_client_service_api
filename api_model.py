@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import psycopg2
+from pathlib import Path
 from typing import Optional
 from datetime import date
 from pydantic import BaseModel, Field
@@ -50,13 +51,15 @@ class ClientRequest(BaseModel):
     cellphone: Optional[str]
     email: Optional[str]
 
- 
+
+
 @app.get("/clientes/")
 async def get_all_clients():
     
     cursor = connection().cursor()
-    cursor.execute("select * from gym.clientes")
+    cursor.execute("""select * from clients""")
     result = cursor.fetchall()
+    print(result)
     cursor.close()
 
     return result
@@ -64,12 +67,13 @@ async def get_all_clients():
 @app.post("/Insert_Client/")
 async def create_item(Client: ClientRequest):
     # Create a new item in the database
-    cursor = connection().cursor()
-    cursor.execute("INSERT INTO gym.clientes (nombre, apellido, dni) VALUES (%s, %s, %s)",
-                   (Client.name, Client.lastname, Client.personal_id))
-    connection().commit()
+    conn = connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO public.clients (name, lastname, personal_id, birthdate) VALUES (%s, %s, %s, %s)",
+                   (Client.name, Client.lastname, Client.personal_id, Client.birthdate))
+    conn.commit()
     cursor.close()
-    return {"message": "Item created successfully"}
+    return {"message": f"Item created successfully"}
 
 
 @app.delete("/Delete_Client/{client_id}")
@@ -78,7 +82,7 @@ async def delete_item(client_id: int):
     delete_item Delete clients from DB
     '''
     cursor = connection().cursor()
-    cursor.execute('DELETE FROM gym.clientes WHERE dni = %s', (client_id,))
+    cursor.execute('DELETE FROM clients WHERE id = %s', (client_id,))
 
     connection().commit()
     cursor.close()
