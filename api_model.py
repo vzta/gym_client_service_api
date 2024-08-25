@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import psycopg2
 from pathlib import Path
 from typing import Optional
@@ -52,6 +52,22 @@ class ClientRequest(BaseModel):
     email: Optional[str]
 
 
+@app.post("/CREATE_TABLES/")
+async def create_table():
+    conn = connection()
+    cursor = conn.cursor()
+    current_path = Path.cwd()
+    # Create a new item in the database
+    with open(f'{current_path}\SQL_Scripts.sql', 'r') as file:
+        sql_commands = file.read()
+        print(sql_commands)  # Add this line to confirm the file content
+
+    
+    cursor.execute(sql_commands)
+    conn.commit()
+    cursor.close()
+    return {"message": f"Item created successfully"}
+
 
 @app.get("/clientes/")
 async def get_all_clients():
@@ -63,6 +79,7 @@ async def get_all_clients():
     cursor.close()
 
     return result
+
 
 @app.post("/Insert_Client/")
 async def create_item(Client: ClientRequest):
@@ -81,9 +98,10 @@ async def delete_item(client_id: int):
     '''
     delete_item Delete clients from DB
     '''
-    cursor = connection().cursor()
+    conn = connection()
+    cursor = conn.cursor()
     cursor.execute('DELETE FROM clients WHERE id = %s', (client_id,))
 
-    connection().commit()
+    conn.commit()
     cursor.close()
     return {"message": "User deleted"}

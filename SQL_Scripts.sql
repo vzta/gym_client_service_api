@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS clients (
+CREATE TABLE IF NOT EXISTS public.clients (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     lastname VARCHAR(255) NOT NULL,
