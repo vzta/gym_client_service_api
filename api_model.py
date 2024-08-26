@@ -5,6 +5,10 @@ from typing import Optional, Annotated
 from datetime import date
 from pydantic import BaseModel, Field
 from connection import connection
+import asyncpg
+import pandas as pd
+import asyncio
+import streamlit as st
 
 app = FastAPI()
 
@@ -78,14 +82,11 @@ async def create_table():
 
 @app.get("/clientes/")
 async def get_all_clients():
-    
-    cursor = connection().cursor()
-    cursor.execute("""select * from clients""")
-    result = cursor.fetchall()
-    print(result)
-    cursor.close()
-
+    conn = await connection()
+    result = await conn.fetch("""select * from clients""")
+    df = pd.DataFrame(result)
     return result
+    await conn.close()
 
 
 @app.post("/Insert_Client/")
@@ -138,3 +139,5 @@ async def add_weight_lifting(Client: ClientLift):
     conn.commit()
     cursor.close()
     return {"message": f"Item Inserted successfully"}
+
+

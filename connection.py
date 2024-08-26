@@ -1,6 +1,8 @@
 import yaml
 from pathlib import Path
 import psycopg2
+import asyncio 
+import asyncpg
 
 current_dir = Path.cwd()
 yaml_dir = current_dir/"configs.yaml"
@@ -12,7 +14,7 @@ db_name = config["db"]["database"]
 db_user = config["db"]["user"]
 db_password = config["db"]["password"]
 
-def connection():
+async def connection():
     '''
     connection Creation to the DB
     Returns the connection to the DB
@@ -22,7 +24,7 @@ def connection():
         db_user (str)
         db_password (str) 
     '''
-    conn = psycopg2.connect(
+    conn = await asyncpg.connect(
     host=db_host,
     database=db_name,
     user=db_user,
